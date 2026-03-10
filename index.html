@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juan Gonçalves Martins — Cientista de Dados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c10;
+      --bg2:       #0d1117;
+      --bg3:       #111820;
+      --border:    rgba(255,255,255,0.06);
+      --border-hi: rgba(0,210,150,0.35);
+      --accent:    #00d296;
+      --accent-dim:#00d29620;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --heading:   #f1f5f9;
+      --card-bg:   #0d1520;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      height: 64px;
+      border-bottom: 1px solid transparent;
+      transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(8,12,16,0.82);
+      backdrop-filter: blur(18px);
+      border-color: var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+      color: var(--heading);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--heading); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      overflow: hidden;
+    }
+
+    /* Radial glow behind hero text */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 10%; left: 50%;
+      transform: translateX(-50%);
+      width: 900px; height: 700px;
+      background: radial-gradient(ellipse at center, rgba(0,210,150,0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* Grid lines */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.1s forwards;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 28px; height: 1px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: var(--heading);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+    h1 .line2 { color: var(--accent); display: block; }
+
+    .hero-desc {
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      font-weight: 300;
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.35s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #050a07;
+    }
+    .btn-primary:hover {
+      background: #00ffb8;
+      box-shadow: 0 0 28px rgba(0,210,150,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.07);
+      transform: translateY(-1px);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem; left: clamp(1.5rem, 5vw, 4rem);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.8s forwards;
+    }
+    .scroll-line {
+      width: 40px; height: 1px;
+      background: var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: var(--accent);
+      animation: scanline 2s 1.2s infinite;
+    }
+
+    /* ── SECTIONS COMMON ── */
+    section {
+      padding: clamp(5rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+      position: relative;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--heading);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .section-intro {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 600px;
+      font-weight: 300;
+      margin-bottom: 3.5rem;
+    }
+
+    /* Divider line */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--text);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 1.25rem;
+      font-weight: 300;
+    }
+    .about-text p strong { color: var(--heading); font-weight: 500; }
+
+    .about-skills h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .skills-group { margin-bottom: 2.5rem; }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .skill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      border: 1px solid;
+      transition: all 0.2s;
+    }
+    .skill-tag:hover { transform: translateY(-1px); }
+
+    .tag-python { background: rgba(255,212,59,0.08); border-color: rgba(255,212,59,0.25); color: #ffd43b; }
+    .tag-ml     { background: rgba(0,210,150,0.07); border-color: rgba(0,210,150,0.25); color: var(--accent); }
+    .tag-data   { background: rgba(96,165,250,0.07); border-color: rgba(96,165,250,0.25); color: #60a5fa; }
+    .tag-tools  { background: rgba(167,139,250,0.07); border-color: rgba(167,139,250,0.25); color: #a78bfa; }
+
+    /* ── PROJECTS ── */
+    #projetos { background: var(--bg2); }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent)), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .project-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,210,150,0.1);
+    }
+    .project-card:hover::before { opacity: 1; }
+
+    .project-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+    }
+
+    .project-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .project-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      flex: 1;
+      font-weight: 300;
+    }
+
+    .project-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stack-badge {
+      padding: 0.2rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: gap 0.2s;
+    }
+    .project-link:hover { gap: 0.65rem; }
+
+    /* ── EXPERIENCE ── */
+    .timeline {
+      position: relative;
+      max-width: 760px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px; bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, var(--accent), transparent);
+    }
+
+    .timeline-item {
+      padding-left: 2.5rem;
+      padding-bottom: 3rem;
+      position: relative;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-dot {
+      position: absolute;
+      left: -5px; top: 6px;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 12px rgba(0,210,150,0.5);
+    }
+
+    .timeline-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-period {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      font-family: 'DM Sans', monospace;
+    }
+
+    .timeline-item h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-company {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.75;
+      font-weight: 300;
+    }
+
+    /* ── CONTACT / FOOTER ── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: clamp(4rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem) 3rem;
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: end;
+      margin-bottom: 4rem;
+    }
+
+    .footer-cta h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin-bottom: 1rem;
+    }
+
+    .footer-cta p {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 460px;
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .social-link:hover { color: var(--heading); }
+    .social-link svg { flex-shrink: 0; }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-bottom p {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scanline {
+      0%   { left: -100%; }
+      50%, 100% { left: 100%; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-links { align-items: flex-start; }
+    }
+
+    /* ── HIGHLIGHT ACCENT ── */
+    .accent { color: var(--accent); }
+
+    /* ── STAT PILLS ── */
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .stat-pill {
+      padding: 0.75rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .stat-pill .num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-pill .lbl {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">J<span>.</span>Martins</a>
+  <ul class="nav-links">
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#projetos">Projetos</a></li>
+    <li><a href="#experiencia">Experiência</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero" id="inicio">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Cientista de Dados</span>
+    <h1>
+      Juan Gonçalves
+      <span class="line2">Martins</span>
+    </h1>
+    <p class="hero-desc">
+      Transformo dados em decisões. Construo modelos de Machine Learning, pipelines de dados escaláveis e soluções analíticas orientadas a impacto real no negócio.
+    </p>
+    <div class="hero-actions">
+      <a href="#projetos" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Ver Projetos
+      </a>
+      <a href="https://www.linkedin.com/in/juangmartins/" target="_blank" rel="noopener" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://github.com/JuanGonccalves" target="_blank" rel="noopener" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    Scroll para explorar
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<!-- ═══════════ SOBRE ═══════════ -->
+<section id="sobre">
+  <div class="reveal">
+    <p class="section-label">Sobre mim</p>
+    <h2>Da curiosidade<br>aos dados.</h2>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-text reveal reveal-delay-1">
+      <p>
+        Sou <strong>Juan Gonçalves Martins</strong>, Cientista de Dados com trajetória construída na interseção entre rigor técnico e impacto prático. Minha abordagem parte de um princípio simples: código nasce da necessidade real, não apenas da teoria.
+      </p>
+      <p>
+        Especializo-me em construir <strong>pipelines de Machine Learning de ponta a ponta</strong> — do pré-processamento à inferência em produção — com foco em modularidade, reprodutibilidade e escalabilidade. Trabalho com Python como linguagem principal, mas o que realmente me orienta é a qualidade da solução.
+      </p>
+      <p>
+        Através da <strong>Scientia Dados</strong>, desenvolvo e compartilho frameworks práticos que ajudam times e desenvolvedores a avançar da escrita de scripts soltos para arquiteturas sólidas de dados e inteligência artificial.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-pill">
+          <div class="num">3+</div>
+          <div class="lbl">Repositórios públicos</div>
+        </div>
+        <div class="stat-pill">
+          <div class="num">ML</div>
+          <div class="lbl">Foco principal</div>
+        </div>
+        <div class="stat-pill">
+          <div class="num">E2E</div>
+          <div class="lbl">Pipelines completos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-skills reveal reveal-delay-2">
+      <div class="skills-group">
+        <h3>Linguagens & Análise</h3>
+        <div class="skills-list">
+          <span class="skill-tag tag-python">Python</span>
+          <span class="skill-tag tag-python">Jupyter Notebook</span>
+          <span class="skill-tag tag-data">pandas</span>
+          <span class="skill-tag tag-data">NumPy</span>
+          <span class="skill-tag tag-data">SQL</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <h3>Machine Learning</h3>
+        <div class="skills-list">
+          <span class="skill-tag tag-ml">scikit-learn</span>
+          <span class="skill-tag tag-ml">XGBoost</span>
+          <span class="skill-tag tag-ml">Optuna</span>
+          <span class="skill-tag tag-ml">Feature Engineering</span>
+          <span class="skill-tag tag-ml">Hyperparameter Tuning</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <h3>Engenharia & Deploy</h3>
+        <div class="skills-list">
+          <span class="skill-tag tag-tools">Docker</span>
+          <span class="skill-tag tag-tools">GitHub Actions</span>
+          <span class="skill-tag tag-tools">Poetry</span>
+          <span class="skill-tag tag-tools">Streamlit</span>
+          <span class="skill-tag tag-tools">CI/CD</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <h3>Boas Práticas</h3>
+        <div class="skills-list">
+          <span class="skill-tag tag-data">pytest</span>
+          <span class="skill-tag tag-data">Arquitetura Modular</span>
+          <span class="skill-tag tag-data">Clean Code</span>
+          <span class="skill-tag tag-data">YAML Config</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════ PROJETOS ═══════════ -->
+<section id="projetos">
+  <div class="reveal">
+    <p class="section-label">Projetos</p>
+    <h2>Código que<br>resolve problemas reais.</h2>
+    <p class="section-intro">Cada projeto é construído a partir de uma necessidade concreta — com arquitetura pensada, código reutilizável e documentação que importa.</p>
+  </div>
+
+  <div class="projects-grid">
+
+    <!-- Card 1: Python Frameworks -->
+    <article class="project-card reveal reveal-delay-1" style="--card-accent: #ffd43b;">
+      <div class="project-icon" style="background: rgba(255,212,59,0.1);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="#ffd43b"/><path d="M11 2a5 5 0 0 0-5 5v1h10V7a5 5 0 0 0-5-5z" fill="#ffd43b" opacity=".5"/></svg>
+      </div>
+      <h3>Scientia Dados — Python Frameworks</h3>
+      <p>Coleção de frameworks práticos em Python desenvolvidos a partir de experiências reais de mercado. O objetivo é construir raciocínio técnico sólido, com código que nasce da necessidade, não da teoria — preparando o caminho para ML e IA aplicada.</p>
+      <div class="project-stack">
+        <span class="stack-badge" style="background:rgba(255,212,59,0.12);color:#ffd43b;">Python</span>
+        <span class="stack-badge" style="background:rgba(255,212,59,0.12);color:#ffd43b;">Jupyter Notebook</span>
+        <span class="stack-badge" style="background:rgba(255,212,59,0.12);color:#ffd43b;">Poetry</span>
+      </div>
+      <a href="https://github.com/Scientiadados/Python" target="_blank" rel="noopener" class="project-link">
+        Ver repositório
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </article>
+
+    <!-- Card 2: Price Notebook -->
+    <article class="project-card reveal reveal-delay-2" style="--card-accent: #00d296;">
+      <div class="project-icon" style="background: rgba(0,210,150,0.1);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d296" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      </div>
+      <h3>Laptop Price Prediction</h3>
+      <p>Pipeline completo de Machine Learning para predição de preços de laptops. Integra pré-processamento, engenharia de features, treinamento com XGBoost, otimização automática de hiperparâmetros via Optuna e inferência — batch e tempo real. Interface opcional via Streamlit.</p>
+      <div class="project-stack">
+        <span class="stack-badge" style="background:rgba(0,210,150,0.1);color:#00d296;">XGBoost</span>
+        <span class="stack-badge" style="background:rgba(0,210,150,0.1);color:#00d296;">Optuna</span>
+        <span class="stack-badge" style="background:rgba(0,210,150,0.1);color:#00d296;">scikit-learn</span>
+        <span class="stack-badge" style="background:rgba(0,210,150,0.1);color:#00d296;">Streamlit</span>
+        <span class="stack-badge" style="background:rgba(0,210,150,0.1);color:#00d296;">pandas</span>
+      </div>
+      <a href="https://github.com/JuanGonccalves/Price-Notebook" target="_blank" rel="noopener" class="project-link">
+        Ver repositório
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </article>
+
+    <!-- Card 3: Model Directory -->
+    <article class="project-card reveal reveal-delay-3" style="--card-accent: #a78bfa;">
+      <div class="project-icon" style="background: rgba(167,139,250,0.1);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <h3>ML Project Directory Structure</h3>
+      <p>Template de arquitetura de referência para projetos de Machine Learning em produção. Separa claramente CLI, camada de aplicação, pipelines reutilizáveis e utilitários. Inclui Docker, GitHub Actions CI/CD, testes automatizados e configuração por ambiente YAML.</p>
+      <div class="project-stack">
+        <span class="stack-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;">Python</span>
+        <span class="stack-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;">Docker</span>
+        <span class="stack-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;">GitHub Actions</span>
+        <span class="stack-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;">pytest</span>
+        <span class="stack-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;">Poetry</span>
+      </div>
+      <a href="https://github.com/Scientiadados/Model_Directory" target="_blank" rel="noopener" class="project-link">
+        Ver repositório
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </article>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════ EXPERIÊNCIA ═══════════ -->
+<section id="experiencia">
+  <div class="reveal">
+    <p class="section-label">Experiência</p>
+    <h2>Trajetória<br>profissional.</h2>
+    <p class="section-intro">Uma jornada construída com consistência — da base técnica à aplicação em produção.</p>
+  </div>
+
+  <div class="timeline">
+
+    <div class="timeline-item reveal reveal-delay-1">
+      <div class="timeline-dot"></div>
+      <div class="timeline-meta">
+        <span class="timeline-period">2023 — Presente</span>
+      </div>
+      <h3>Fundador & Cientista de Dados</h3>
+      <p class="timeline-company">Scientia Dados</p>
+      <p class="timeline-desc">
+        Criação e desenvolvimento de conteúdo técnico avançado em Python e Machine Learning para o mercado brasileiro. Desenvolvimento de frameworks práticos aplicados ao dia a dia, construção de pipelines de ML end-to-end e compartilhamento de metodologias que conectam teoria e prática de mercado.
+      </p>
+    </div>
+
+    <div class="timeline-item reveal reveal-delay-2">
+      <div class="timeline-dot"></div>
+      <div class="timeline-meta">
+        <span class="timeline-period">2022 — 2023</span>
+      </div>
+      <h3>Desenvolvedor de Soluções em Dados</h3>
+      <p class="timeline-company">Projetos independentes</p>
+      <p class="timeline-desc">
+        Construção de modelos de predição com XGBoost e scikit-learn, incluindo otimização de hiperparâmetros com Optuna. Implementação de arquiteturas modulares para ML em produção com separação clara de responsabilidades, containerização Docker e pipelines de CI/CD.
+      </p>
+    </div>
+
+    <div class="timeline-item reveal reveal-delay-3">
+      <div class="timeline-dot"></div>
+      <div class="timeline-meta">
+        <span class="timeline-period">2020 — 2022</span>
+      </div>
+      <h3>Analista de Dados</h3>
+      <p class="timeline-company">Experiência analítica</p>
+      <p class="timeline-desc">
+        Análise exploratória de dados, construção de dashboards e relatórios analíticos. Automação de processos com Python, manipulação de grandes volumes de dados com pandas e desenvolvimento das bases que sustentariam a transição para projetos de Machine Learning.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════ FOOTER / CONTATO ═══════════ -->
+<footer id="contato">
+  <div class="footer-inner">
+    <div class="footer-cta reveal">
+      <p class="section-label">Contato</p>
+      <h2>Vamos trabalhar<br>juntos<span class="accent">.</span></h2>
+      <p>Aberto a oportunidades, projetos e conversas sobre dados, ML e o que você está construindo. Se há um problema interessante para resolver, me chame.</p>
+      <a href="https://www.linkedin.com/in/juangmartins/" target="_blank" rel="noopener" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        Conectar no LinkedIn
+      </a>
+    </div>
+
+    <div class="footer-links reveal reveal-delay-1">
+      <a href="https://www.linkedin.com/in/juangmartins/" target="_blank" rel="noopener" class="social-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://github.com/JuanGonccalves" target="_blank" rel="noopener" class="social-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub — JuanGonccalves
+      </a>
+      <a href="https://github.com/Scientiadados" target="_blank" rel="noopener" class="social-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub — Scientiadados
+      </a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 Juan Gonçalves Martins. Feito com dados, código e intenção.</p>
+    <p style="color: var(--accent); font-size:0.78rem; font-weight:500;">Cientista de Dados</p>
+  </div>
+</footer>
+
+<script>
+  // ── Nav scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // ── Intersection Observer for reveal animations
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  revealEls.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
